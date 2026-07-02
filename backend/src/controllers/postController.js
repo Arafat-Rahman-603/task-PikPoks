@@ -1,16 +1,19 @@
 import Post from '../models/Post.js';
+import User from '../models/User.js';
 
 /**
  * GET /api/posts
- * Managers see their own posts. Admins see all posts.
+ * Managers see their own posts and admins' posts. Admins see all posts.
  */
 export const getPosts = async (req, res, next) => {
   try {
     let filter = {};
 
-    // Managers only see their own posts; admins see all
+    // Managers see their own posts and admins' posts; admins see all
     if (req.user.role === 'manager') {
-      filter.author = req.user._id;
+      const admins = await User.find({ role: 'admin' }).select('_id');
+      const adminIds = admins.map((admin) => admin._id);
+      filter.author = { $in: [req.user._id, ...adminIds] };
     }
 
     const posts = await Post.find(filter)

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api.js';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const ManagerDashboard = () => {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
@@ -124,7 +126,7 @@ const ManagerDashboard = () => {
 
       {/* Post List */}
       <div className="card">
-        <h3>My Posts</h3>
+        <h3>Posts</h3>
         {loading ? (
           <p>Loading posts...</p>
         ) : posts.length === 0 ? (
@@ -176,20 +178,22 @@ const ManagerDashboard = () => {
                         {new Date(post.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="post-actions">
-                      <button
-                        onClick={() => startEdit(post)}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(post._id)}
-                        className="btn btn-danger btn-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {post.author && (post.author._id || post.author.id) === (user?.id || user?._id) && (
+                      <div className="post-actions">
+                        <button
+                          onClick={() => startEdit(post)}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(post._id)}
+                          className="btn btn-danger btn-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
